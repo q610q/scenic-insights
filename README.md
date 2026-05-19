@@ -160,3 +160,11 @@ uv run python -m pipelines.run stats     # 数据质量摘要
 ## 📐 架构决策
 
 详见 [ARCHITECTURE.md](./ARCHITECTURE.md)。
+
+## 运行结果
+<img width="1847" height="897" alt="11" src="https://github.com/user-attachments/assets/6053d8cd-b0e4-4479-afa0-e84a59f060a7" />
+
+<img width="1868" height="898" alt="22" src="https://github.com/user-attachments/assets/7719392d-4e09-4c27-a2ec-1c6bb46aa7fc" />
+
+<img width="1845" height="922" alt="33" src="https://github.com/user-attachments/assets/6fde6e07-e012-41c4-b4bd-52a3cfdc77f2" />
+
