@@ -1,0 +1,64 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+.python-version
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+dist/
+build/
+
+# Node / Frontend
+node_modules/
+client/dist/
+client/.vite/
+client/tsconfig.tsbuildinfo
+# unplugin-auto-import / unplugin-vue-components 自动生成的 d.ts (build/dev 时重生)
+client/auto-imports.d.ts
+client/components.d.ts
+*.local
+
+# Env (含真实密钥) — .example 显式放行作为模板
+.env
+.env.local
+.env.*.local
+server/.env
+server/.env.*
+!server/.env.example
+client/.env
+client/.env.*
+!client/.env.*.example
+
+# DuckDB
+*.duckdb
+*.duckdb.wal
+*.duckdb.tmp
+
+# 原始数据与中间产物（全部不入库，参见 data/README.md）
+data/csv/
+data/excel/
+data/txt/
+data/parquet/
+data/staging/
+data/etl.duckdb*
+
+# CCG 工作流状态（仅本地工作记忆，含 API key/任务态/AI 协作过程）
+.ccg/
+
+# 本地决策草稿（不公开展示）
+docs/decisions/
+
+# IDE
+.vscode/
+.idea/
+.claude/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,21 @@
+/* Global styles. */
+* { box-sizing: border-box; }
+html, body, #app { height: 100%; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei',
+               'Segoe UI', Roboto, sans-serif;
+  color: #1f2937;
+  background: #f5f7fa;
+}
+a { color: inherit; text-decoration: none; }
+button { cursor: pointer; font-family: inherit; }
+
+/* Dashboard dark theme overrides */
+.dashboard-root {
+  --dash-bg: #0a0e1a;
+  --dash-card-bg: linear-gradient(135deg, rgba(30, 41, 59, 0.6), rgba(15, 23, 42, 0.85));
+  --dash-border: rgba(99, 102, 241, 0.18);
+  --dash-text: #cbd5e1;
+  --dash-text-strong: #f1f5f9;
+  --dash-accent: #6366f1;
+}

@@ -1,0 +1,13 @@
+node_modules
+dist
+.vite
+.git
+.gitignore
+.env
+.env.*
+*.local
+tsconfig.tsbuildinfo
+auto-imports.d.ts
+components.d.ts
+Dockerfile
+.dockerignore

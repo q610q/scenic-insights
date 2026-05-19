@@ -1,0 +1,99 @@
+services:
+  postgres:
+    image: postgis/postgis:16-3.4
+    container_name: travel-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${PG_DB:-travel_dw}
+      POSTGRES_USER: ${PG_USER:-travel}
+      POSTGRES_PASSWORD: ${PG_PASSWORD:-changeme}
+      TZ: Asia/Shanghai
+      PGTZ: Asia/Shanghai
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PG_USER:-travel} -d ${PG_DB:-travel_dw}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    shm_size: 256m
+
+  redis:
+    image: redis:7-alpine
+    container_name: travel-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    command:
+      - redis-server
+      - --maxmemory 256mb
+      - --maxmemory-policy allkeys-lru
+
+  api:
+    build: ./server
+    container_name: travel-api
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${PG_USER:-travel}:${PG_PASSWORD:-changeme}@postgres:5432/${PG_DB:-travel_dw}
+      REDIS_URL: redis://redis:6379/0
+      AMAP_API_KEY: ${AMAP_API_KEY:-}
+      CORS_ORIGINS: "http://localhost,http://localhost:3000,http://localhost:5173,http://127.0.0.1"
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8000/healthz"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  web:
+    build: ./client
+    container_name: travel-web
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "80:80"
+
+  # -----------------------------------------------------------------------
+  # ETL one-shot：profile=bootstrap，默认不启
+  # 用法：
+  #   1) 把原始 CSV/TXT 放到 ./data/csv  和  ./data/txt
+  #   2) docker compose --profile bootstrap up etl
+  # 行为：等 PG schema 就绪 → 若 dim_scenic_spot 已有数据则直接退出（幂等）
+  #         否则跑 clean → txt → enrich → geocode(可选) → load
+  # -----------------------------------------------------------------------
+  etl:
+    build:
+      context: .
+      dockerfile: pipelines/Dockerfile
+    container_name: travel-etl
+    profiles: ["bootstrap"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://${PG_USER:-travel}:${PG_PASSWORD:-changeme}@postgres:5432/${PG_DB:-travel_dw}
+      AMAP_API_KEY: ${AMAP_API_KEY:-}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    volumes:
+      - ./data:/app/data
+      - ./pipelines:/app/pipelines:ro
+    # bootstrap 命令幂等：已灌则秒退；从零灌库约 5-10 分钟
+    command: ["python", "-m", "pipelines.run", "bootstrap"]
+
+volumes:
+  pgdata:
+  redisdata:
